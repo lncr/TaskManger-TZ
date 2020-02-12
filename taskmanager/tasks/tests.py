@@ -1,41 +1,47 @@
-from django.test import TestCase
-
-from .models import Task, Tag
-
-
-class TaskModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        Task.objects.create(name='test',
-                            description='asdfghjkl')
-
-    def test_name_label(self):
-        task = Task.objects.get(id=1)
-        field_label = task._meta.get_field('name').verbose_name
-        self.assertEquals(field_label, 'name')
-
-    def test_description_label(self):
-        task = Task.objects.get(id=1)
-        field_label = task._meta.get_field('description').verbose_name
-        self.assertEquals(field_label, 'description')
-
-    def test_date_label(self):
-        task = Task.objects.get(id=1)
-        field_label = task._meta.get_field('date_of_creation').verbose_name
-        self.assertEquals(field_label, 'date of creation')
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from .models import Tag, Task
 
 
-class TagModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        Tag.objects.create(name='test')
+class TaskTests(APITestCase):
 
-    def test_name_label(self):
-        tag = Tag.objects.get(id=1)
-        field_label = tag._meta.get_field('name').verbose_name
-        self.assertEquals(field_label, 'name')
+    def setUp(self):
+        Task.objects.create(name='Run marathon', description='Need to run a marathon')
+        Task.objects.create(name='Lie on the beach', description='Need some more sunlight')
 
-    def test_date_label(self):
-        tag = Tag.objects.get(id=1)
-        field_label = tag._meta.get_field('date_of_creation').verbose_name
-        self.assertEquals(field_label, 'date of creation')
+    def test_create_task(self):
+        url = reverse('tasks_list_url')
+        data = {'name': 'Buy milk', 'description': 'Need some milk'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Task.objects.get().name, 'Buy milk')
+
+    def test_get_single_task(self):
+        response = self.client.get('0.0.0.0:5000/tasks/2/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_tasks_list(self):
+        response = self.client.get('0.0.0.0:5000/tasks/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TagTests(APITestCase):
+
+    def setUp(self):
+        Tag.objects.create(name='marathon')
+
+    def test_create_tag(self):
+        url = reverse('tags_list_url')
+        data = {'name': 'milk'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Task.objects.get().name, 'milk')
+
+    def test_get_single_tag(self):
+        response = self.client.get('0.0.0.0:5000/api/v1/1/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_tags_list(self):
+        response = self.client.get('0.0.0.0:5000/tags/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
