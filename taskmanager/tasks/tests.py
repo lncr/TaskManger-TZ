@@ -34,7 +34,7 @@ class TagTests(APITestCase):
         Tag.objects.create(name='marathon')
 
     def test_create_tag(self):
-        url = reverse('tags_list_url')
+        url = reverse('tag_list_url')
         data = {'name': 'milk'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -46,6 +46,6 @@ class TagTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_tags_list(self):
-        url = reverse('tags_list_url')
+        url = reverse('tag_list_url')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
