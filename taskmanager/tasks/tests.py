@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from tasks.models import Tag, Task
+from .models import Tag, Task
 
 
 class TaskTests(APITestCase):
@@ -18,11 +18,13 @@ class TaskTests(APITestCase):
         self.assertEqual(Task.objects.get().name, 'Buy milk')
 
     def test_get_single_task(self):
-        response = self.client.get('0.0.0.0:5000/tasks/2/', format='json')
+        url = reverse('task_detail_url', args=2)
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_tasks_list(self):
-        response = self.client.get('0.0.0.0:5000/tasks/', format='json')
+        url = reverse('tasks_list_url')
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -36,12 +38,14 @@ class TagTests(APITestCase):
         data = {'name': 'milk'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Task.objects.get().name, 'milk')
+        self.assertEqual(Tag.objects.get().name, 'milk')
 
     def test_get_single_tag(self):
-        response = self.client.get('0.0.0.0:5000/api/v1/1/', format='json')
+        url = reverse('tag_detail_url', args=1)
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_tags_list(self):
-        response = self.client.get('0.0.0.0:5000/tags/', format='json')
+        url = reverse('tags_list_url')
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
