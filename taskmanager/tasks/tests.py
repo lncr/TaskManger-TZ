@@ -15,10 +15,10 @@ class TaskTests(APITestCase):
         data = {'name': 'Buy milk', 'description': 'Need some milk'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Task.objects.get().name, 'Buy milk')
+        self.assertEqual(Task.objects.get(id=3).name, 'Buy milk')
 
     def test_get_single_task(self):
-        url = reverse('task_detail_url', args=2)
+        url = reverse('task_detail_url', args=[2])
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -32,20 +32,21 @@ class TagTests(APITestCase):
 
     def setUp(self):
         Tag.objects.create(name='marathon')
+        Task.objects.create(name='blahblaah', description='morethanenough')
 
     def test_create_tag(self):
-        url = reverse('tags_list_url')
-        data = {'name': 'milk'}
+        url = reverse('tag_list_url')
+        data = {'name': 'milk', 'tasks': [1]}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Tag.objects.get().name, 'milk')
+        self.assertEqual(Tag.objects.get(id=2).name, 'milk')
 
     def test_get_single_tag(self):
-        url = reverse('tag_detail_url', args=1)
+        url = reverse('tag_detail_url', args=[1])
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_tags_list(self):
-        url = reverse('tags_list_url')
+        url = reverse('tag_list_url')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
